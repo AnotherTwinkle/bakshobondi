@@ -1,6 +1,7 @@
 //  Screen driver functionality
 
 #include "screen.h"
+#include "../kernel/util.h"
 #include "../kernel/io.h"
 
 void SCREEN_INIT() {
@@ -55,9 +56,9 @@ void print_char(char c, int row, int col, char attr) {
 
 	// Control characters
 	if (c == '\n') {
-		col = 79; // go to end of current row
+		col = MAXC - 1; // go to end of current row
 	} else if (c == '\r') {
-		row -= 1, col = 79; // end of previous row
+		row -= 1, col = MAXC - 1; // end of previous row
 	} else {
 		vidmem[offset] = c;
 		vidmem[offset + 1] = attr;
@@ -65,7 +66,9 @@ void print_char(char c, int row, int col, char attr) {
 
 	offset = get_offset(row, col);
 	offset += 2;
-	set_cursor(offset);
+	
+	// handle_scroll(offset); // will handle cursor position
+	set_cursor(handle_scroll(offset));
 }
 
 void print_at(int row, int col, char* msg) {
@@ -81,4 +84,44 @@ void print_at(int row, int col, char* msg) {
 
 void print(char *msg) {
 	print_at(-1, -1, msg);
+}
+
+void clear_screen() {
+	for (int r = 0; r < MAXR; r++) {
+		for (int c = 0; c < MAXC; c++) {
+			print_char(' ', r, c, WHITE_ON_BLACK);
+		}
+	}
+
+	set_cursor(get_offset(0, 0));
+}
+
+void scroll_up() {
+	// get current row from cursor offset
+	int offset = get_cursor();
+	int row = offset / (2*MAXC);
+
+	// copy memory region from line 1 to the end of current row
+	// to line 0
+	int start_addr = VIDEO_ADDRESS + 2*MAXC;
+	int end_addr = VIDEO_ADDRESS + get_offset(row, MAXC - 1);
+
+	if (start_addr < end_addr) {
+		memcpy(
+			(char*)start_addr,
+			(char*)VIDEO_ADDRESS, 
+			end_addr - start_addr + 1
+			);
+	}
+	// now clear the current row
+	memset((char*)VIDEO_ADDRESS + get_offset(row, 0), 0, 2*MAXC);
+}
+
+int handle_scroll(int offset) {
+	if (offset < 2 * MAXC * MAXR) {
+		return offset;
+	}
+
+	scroll_up();
+	offset -= 2*MAXC;
 }
