@@ -1,12 +1,17 @@
 #include "../drivers/screen.h"
+#include "idt.h"
+#include "isr.h"
+#include "util.h"
+
+char *hexstr(int num);
 void main() {
 	SCREEN_INIT();
-	char *msg = "Hello, world!\n";
+	idt_init();
+//	char* r = hexstr(10);
+	asm volatile ("int $0x0");
 
-	for(int i = 0; i < 50; i++) {
-		print_char('0' + i, -1, -1, 0);
-		print(msg);
-	}
+	asm volatile ("int $0x1");
 
+	asm volatile ("int $0x2");
+	asm volatile ("int $0x3");
 }
-

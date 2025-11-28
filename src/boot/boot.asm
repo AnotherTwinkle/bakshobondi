@@ -43,7 +43,7 @@ load_kernel:
 	mov es, ax
 
 	mov bx, KERNEL_OFFSET ; Load in KERNEL_OFFSET
-	mov dh, 15            ; Load 15 sectors
+	mov dh, 30            ; Load 30 sectors
 	mov dl, [BOOT_DRIVE]  ; Target drive
 
 	call disk_load
