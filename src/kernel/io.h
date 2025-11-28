@@ -1,7 +1,10 @@
 // Low level io implementation
 
-unsigned char port_byte_in(unsigned short port);
-void port_byte_out(unsigned short port, unsigned char byte);
+#define byte unsigned char
+#define word unsigned short
 
-unsigned short port_word_in(unsigned short port);
-void port_word_out(unsigned short port, unsigned short word);
+byte port_byte_in(word port);
+void port_byte_out(word port, byte data);
+
+word port_word_in(word port);
+void port_word_out(word port, word data);

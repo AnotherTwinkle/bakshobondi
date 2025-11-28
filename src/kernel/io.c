@@ -1,6 +1,4 @@
 #include "io.h"
-#define byte unsigned char
-#define word unsigned short
 
 byte port_byte_in(word port) {
 	byte result;

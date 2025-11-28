@@ -2,14 +2,6 @@
 
 #include "screen.h"
 #include "../kernel/io.h"
-#define VIDEO_ADDRESS 0xb8000
-#define MAXR 25
-#define MAXC 80
-
-#define WHITE_ON_BLACK 0x0f
-
-#define REG_SCREEN_CTRL 0x3D4
-#define REG_SCREEN_DATA 0x3D5
 
 void SCREEN_INIT() {
 	set_cursor(0);
@@ -70,7 +62,7 @@ void print_char(char c, int row, int col, char attr) {
 		vidmem[offset] = c;
 		vidmem[offset + 1] = attr;
 	}
-	
+
 	offset = get_offset(row, col);
 	offset += 2;
 	set_cursor(offset);
