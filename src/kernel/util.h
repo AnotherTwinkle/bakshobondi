@@ -5,7 +5,9 @@ typedef          short s16;
 typedef unsigned   int u32;
 typedef            int s32;
 
-void memcpy(char* src, char* dst, int num_bytes);
+#define RAND_MAX 32767
+
+void memcpy(char* dest, char* src, int num_bytes);
 void memset(char* start, char c, int num_bytes);
 
 int strlen(const char *str);
@@ -15,4 +17,9 @@ void reverse(char str[], int length);
 
 char *itoa(int value, char *buffer);
 char *itoh(int value, char *buffer);
+
+void sleep(u32 ms);
+
+int rand();
+void srand(u32 seed);
 

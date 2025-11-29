@@ -26,3 +26,7 @@ void PIT_INIT(u32 freq) {
 	port_byte_out(0x40, (u8)((divisor >> 8) & 0xff));
 
 }
+
+u32 get_ticks() {
+	return CLOCK_TICKS;
+}

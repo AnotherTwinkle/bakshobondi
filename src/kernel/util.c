@@ -1,6 +1,11 @@
-void memcpy(char* src, char* dst, int num_bytes) {
+#include "util.h"
+#include "../kernel/pit.h"
+
+static u32 next = 1;
+
+void memcpy(char* dest, char* src, int num_bytes) {
 	for (int i = 0; i < num_bytes; i++) {
-		*(dst + i) = *(src + i);
+		*(dest + i) = *(src + i);
 	}
 }
 
@@ -105,4 +110,28 @@ char *itoh(int value, char *buffer) {
     // Null terminator after 0x + 8 digits = index 10
     buffer[10] = '\0'; 
     return buffer;
+}
+
+void sleep(u32 ms) {
+    u32 start = get_ticks();
+
+    while (1) {
+        __asm__ volatile("hlt");   // wait for next timer tick
+        u32 now = get_ticks();
+        if ((now - start) >= ms)
+            break;
+    }
+}
+
+int rand() {
+	/* classic pseudo random generator */
+	
+	next = next * 1103515245 + 12345;
+	
+	return (next>>16) & RAND_MAX;
+}
+
+void srand(u32 seed) {
+	
+	next = seed;
 }

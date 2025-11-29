@@ -21,3 +21,5 @@ void clear_screen();
 
 void scroll_up();
 int handle_scroll(int offset);
+
+void flush(char *buf);

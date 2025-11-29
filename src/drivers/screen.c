@@ -108,8 +108,8 @@ void scroll_up() {
 
 	if (start_addr < end_addr) {
 		memcpy(
-			(char*)start_addr,
 			(char*)VIDEO_ADDRESS, 
+			(char*)start_addr,
 			end_addr - start_addr + 1
 			);
 	}
@@ -125,4 +125,19 @@ int handle_scroll(int offset) {
 	scroll_up();
 	offset -= 2*MAXC;
 	return offset;
+}
+
+
+void flush(char *buff) {
+	unsigned char *vidmem = (unsigned char*) VIDEO_ADDRESS;
+
+	// Flush screen without cursor shenanighans
+	for (int r = 0; r < MAXR; r++) {
+		for (int c = 0; c < MAXC; c++) {
+			int offset = get_offset(r, c);
+			char c = buff[offset/2];
+			vidmem[offset] = c;
+			vidmem[offset + 1] = WHITE_ON_BLACK;
+		}
+	}
 }
