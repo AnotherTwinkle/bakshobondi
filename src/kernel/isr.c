@@ -1,6 +1,9 @@
 #include "util.h"
 #include "isr.h"
 #include "../drivers/screen.h"
+#include "io.h"
+
+ISR interrupt_handlers[256];
 
 char *exception_messages[] = {
     "Division By Zero",
@@ -20,7 +23,6 @@ char *exception_messages[] = {
     "General Protection Fault",
     "Page Fault",
     "Unknown Interrupt",
-
     "Coprocessor Fault",
     "Alignment Check",
     "Machine Check",
@@ -40,11 +42,24 @@ char *exception_messages[] = {
     "Reserved"
 };
 
+void isr_handler(RegisterState r) {
+	return;
+}
 
-void isr_handler(registers_t r) {
-	print("Interrupt: ");
-	print(hexstr(r.int_no));
-	print(" ");
-	print(exception_messages[r.int_no]);
-	print("\n");
+void register_interrupt_handler(u32 i, ISR handler) {
+	interrupt_handlers[i] = handler;
+}
+
+void irq_handler(RegisterState r) {
+	// Send end of interrupt to PICs
+	// If it comes from slave, gotta send to master and slave
+
+	if (r.int_no >= 40) port_byte_out(0xA0, 0x20);
+	port_byte_out(0x20, 0x20);
+
+	// If 0 then we have no handlers defined
+	if (interrupt_handlers[r.int_no] != 0) {
+		ISR handler = interrupt_handlers[r.int_no];
+		handler(r);
+	}
 }

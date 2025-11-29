@@ -24,4 +24,4 @@ static struct {
 } idt;
 
 void set_idt_entry(int idx, u32 handler);
-void idt_init();
+void IDT_INIT();

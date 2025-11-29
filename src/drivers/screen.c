@@ -124,4 +124,5 @@ int handle_scroll(int offset) {
 
 	scroll_up();
 	offset -= 2*MAXC;
+	return offset;
 }

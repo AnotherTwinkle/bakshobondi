@@ -17,6 +17,16 @@
 		jmp isr_common
 %endmacro
 
+[extern irq_handler]
+%macro IRQ 1
+	[global irq%1]
+	irq%1:
+		cli
+		push byte (%1)
+		push byte (%1 + 32)
+		jmp irq_common
+%endmacro
+
 isr_common:
 	pusha      ; save registers
 	mov ax, ds
@@ -34,6 +44,28 @@ isr_common:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
+	popa
+	add esp, 8
+	sti
+	iret
+
+irq_common:
+	pusha
+	mov ax, ds
+	push eax
+	mov ax, 0x10
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+
+	call irq_handler
+
+	pop ebx
+	mov ds, bx
+	mov es, bx
+	mov fs, bx
+	mov gs, bx
 	popa
 	add esp, 8
 	sti
@@ -71,3 +103,20 @@ ISR_NOERR 28
 ISR_NOERR 29
 ISR_NOERR 30
 ISR_NOERR 31
+
+IRQ 0
+IRQ 1
+IRQ 2
+IRQ 3
+IRQ 4
+IRQ 5
+IRQ 6
+IRQ 7
+IRQ 8
+IRQ 9
+IRQ 10
+IRQ 11
+IRQ 12
+IRQ 13
+IRQ 14
+IRQ 15

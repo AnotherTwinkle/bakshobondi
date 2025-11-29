@@ -2,16 +2,14 @@
 #include "idt.h"
 #include "isr.h"
 #include "util.h"
+#include "pit.h"
 
 char *hexstr(int num);
 void main() {
 	SCREEN_INIT();
-	idt_init();
-//	char* r = hexstr(10);
-	asm volatile ("int $0x0");
+	IDT_INIT();
+	PIT_INIT(1000);
+	KBD_INIT();
 
-	asm volatile ("int $0x1");
-
-	asm volatile ("int $0x2");
-	asm volatile ("int $0x3");
+	asm volatile ("sti");
 }

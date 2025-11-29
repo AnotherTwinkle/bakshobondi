@@ -1,5 +1,7 @@
 #include "idt.h"
+#include "isr.h"
 #include "util.h"
+#include "io.h"
 
 void set_idt_entry(int idx, u32 handler) {
 	idt.entries[idx].low_offset = handler & 0xffff;
@@ -9,7 +11,7 @@ void set_idt_entry(int idx, u32 handler) {
 	idt.entries[idx].high_offset = (handler >> 16) & 0xffff;
 }
 
-void idt_init() {
+void IDT_INIT() {
 	idt.reg.base = (u32) &idt; // address of dit
 	idt.reg.limit = IDT_SIZE * sizeof(struct IDTEntry) - 1;
 
@@ -45,6 +47,37 @@ void idt_init() {
 	set_idt_entry(29, (u32)isr29);
 	set_idt_entry(30, (u32)isr30);
 	set_idt_entry(31, (u32)isr31);
+
+	// Remap PICs
+    port_byte_out(0x20, 0x11);
+    port_byte_out(0xA0, 0x11);
+    port_byte_out(0x21, 0x20);
+    port_byte_out(0xA1, 0x28);
+    port_byte_out(0x21, 0x04);
+    port_byte_out(0xA1, 0x02);
+    port_byte_out(0x21, 0x01);
+    port_byte_out(0xA1, 0x01);
+    port_byte_out(0x21, 0x0);
+    port_byte_out(0xA1, 0x0);
+
+  	// Install IRQs
+  	set_idt_entry(32, (u32)irq0);
+    set_idt_entry(33, (u32)irq1);
+    set_idt_entry(34, (u32)irq2);
+    set_idt_entry(35, (u32)irq3);
+    set_idt_entry(36, (u32)irq4);
+    set_idt_entry(37, (u32)irq5);
+    set_idt_entry(38, (u32)irq6);
+    set_idt_entry(39, (u32)irq7);
+    set_idt_entry(40, (u32)irq8);
+    set_idt_entry(41, (u32)irq9);
+    set_idt_entry(42, (u32)irq10);
+    set_idt_entry(43, (u32)irq11);
+    set_idt_entry(44, (u32)irq12);
+    set_idt_entry(45, (u32)irq13);
+    set_idt_entry(46, (u32)irq14);
+    set_idt_entry(47, (u32)irq15);
+
 
 	__asm__ __volatile__("lidt %0" : : "m"(idt.reg));
 }
