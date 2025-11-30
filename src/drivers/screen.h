@@ -17,9 +17,11 @@ void set_cursor(int offset);
 void print_char(char c, int row, int col, char attr);
 void print_at(int row, int col, char* msg);
 void print(char* msg);
+void println(char* msg);
+void flush(char *buf);
+
+
 void clear_screen();
 
 void scroll_up();
 int handle_scroll(int offset);
-
-void flush(char *buf);

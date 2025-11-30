@@ -2,7 +2,7 @@
 #include "isr.h"
 #include "util.h"
 #include "io.h"
-#include "../drivers/screen.h"
+#include "drivers/screen.h"
 
 u32 CLOCK_TICKS = 0;
 

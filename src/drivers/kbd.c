@@ -1,18 +1,18 @@
 #include "kbd.h"
-#include "../kernel/io.h"
-#include "../kernel/isr.h"
-#include "../kernel/idt.h"
-#include "../kernel/util.h"
+#include "kernel/io.h"
+#include "kernel/isr.h"
+#include "kernel/idt.h"
+#include "kernel/util.h"
 #include "screen.h"
 
 static void callback(RegisterState r) {
 	u8 code = port_byte_in(0x60);
-	char *sc_ascii[10];
+	char sc_ascii[10];
 	itoa(code, sc_ascii);
-	//print(sc_ascii);
-	//print(" ");
+    print(sc_ascii);
+	print(" ");
 	kbdprint(code);
-	//print("\n");
+	print("\n");
 }
 
 void KBD_INIT() {

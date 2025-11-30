@@ -1,8 +1,8 @@
 //  Screen driver functionality
 
 #include "screen.h"
-#include "../kernel/util.h"
-#include "../kernel/io.h"
+#include "kernel/util.h"
+#include "kernel/io.h"
 
 void SCREEN_INIT() {
 	set_cursor(0);
@@ -86,6 +86,11 @@ void print(char *msg) {
 	print_at(-1, -1, msg);
 }
 
+void println(char* msg) {
+	print(msg);
+	print("\n");
+}
+
 void clear_screen() {
 	for (int r = 0; r < MAXR; r++) {
 		for (int c = 0; c < MAXC; c++) {
@@ -127,8 +132,7 @@ int handle_scroll(int offset) {
 	return offset;
 }
 
-
-void flush(char *buff) {
+void flush(char *buff) { // Note : accepts flattened array
 	unsigned char *vidmem = (unsigned char*) VIDEO_ADDRESS;
 
 	// Flush screen without cursor shenanighans

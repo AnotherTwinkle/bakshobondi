@@ -1,5 +1,5 @@
 #include "util.h"
-#include "../kernel/pit.h"
+#include "kernel/pit.h"
 
 static u32 next = 1;
 
