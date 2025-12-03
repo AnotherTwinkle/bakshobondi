@@ -2,96 +2,47 @@
 
 jmp bootloader_init
 
+BOOT_DRIVE: db 0
+
 %include "src/boot/disk.asm"
-%include "src/boot/gdt.asm"
 %include "src/boot/util.asm"
 
-BOOT_DRIVE: db 0
-GREETINGS_16BIT: db "Hello, 16 bits!", 0
-GREETINGS_PM : db "Welcome to 32-bit land!", 0
-MSG_LOADING_KERNEL : db "Loading kernel...", 0
+; Memory Diagram
+; 0x0000  -  0x7c00  : Bios stuff
+; 0x7c00  -  0x7fff  : Boot sector
+; 0x8000  -  0x8fff  : Boot stage 2
+; ?       -  0x9fff  : Initial stack
+; 0xa000  -  ?       : Kernel
+; ?       -  0x80000 : Stack (In protected mode)
 
-KERNEL_OFFSET equ 0x1000  ; WARNING : make sure kernel is at 0x1000 while building
+; Important : It is crucial that setup.bin is padded to match its size (currently 4096 bytes)
+;             setup.asm should have its org directive at 0x8000
 
 [bits 16]
-
 bootloader_init:
 	; BIOS stores boot drive in dl
 	mov [BOOT_DRIVE], dl
 
-	; Setup stack points for any functions we may call in 16 bit
-	mov bp, 0x8000
+	xor ax, ax
+	mov ds, ax
+	mov es, ax
+	mov ss, ax
+
+	; Setup stack 
+	mov bp, 0x9fff
 	mov sp, bp
 
-	; Greetings
-	mov bx, GREETINGS_16BIT
-	call print16bit
-	call newline
+	mov dl, [BOOT_DRIVE]
+	mov dh, 8       ; Read 8 sectors
+	mov cl, 0x2     ; From sector 2
+	mov bx, 0x8000  ; Load stage2 at es:bx
 
-	mov bx, MSG_LOADING_KERNEL
-	call print16bit
-
-	; mov dx, KERNEL_OFFSET
-	; call print_hex
-
-	; Enable a20... It is enabled by default on qemu though
-	in al, 0x92
-	or al, 2
-	out 0x92, al
-
-	call load_kernel 
-
-	jmp switch_to_protected_mode  ; we are not returning
-
-; Kernel must be loaded in 16 bit mode using bios routines
-load_kernel:
-	mov ax, 0x0           ; Make sure es (offset) is 0
-	mov es, ax
-
-	mov bx, KERNEL_OFFSET ; Load in KERNEL_OFFSET
-	mov dh, 30            ; Load 30 sectors
-	mov dl, [BOOT_DRIVE]  ; Target drive
+	; So setup stage 2 is upto 0x9000
 
 	call disk_load
-	ret
 
-switch_to_protected_mode:
-
-	cli 				  ; Clear interrupts
-	lgdt [gdt_descriptor] ; Pass gdt table
-
-	mov eax, cr0
-	or eax, 0x1           ; First bit = 1 for 32 bit mode
-	mov cr0, eax
-
-	jmp CODE_SEG:pm_init  ; Far jump to 32 bits!
-
-[bits 32]
-pm_init:
-
-	; Redefine segments
-	mov ax, DATA_SEG
-	mov ds, ax
-	mov ss, ax  
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-
-	; New stack
-	mov ebp, 0x80000
-	mov esp, ebp
-
-	jmp main
-
-main:
-	call cls
-	mov ebx, GREETINGS_PM
-	call print
-
-	call cls
-	call KERNEL_OFFSET  ; Hand control over to kernel.
-
-	jmp $
+	mov dl, [BOOT_DRIVE] ; This will be needed in stage 2
+	jmp 0x0000:0x8000 ; jump to stage 2
 
 end:
 	times 510-($ - $$) db 0

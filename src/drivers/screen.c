@@ -6,8 +6,10 @@
 
 void SCREEN_INIT() {
 	set_cursor(0);
+	clear_screen();
 	return;
 }
+
 
 int get_offset(int row, int col) {
 	return 2*(row*MAXC + col);

@@ -15,20 +15,24 @@ $(info OBJ list: $(OBJ))
 all : os.img
 
 run : all
-	qemu-system-x86_64 os.img
+	qemu-system-x86_64 -drive format=raw,file=os.img
 
-os.img : src/boot/boot.bin kernel.bin
+os.img : src/boot/boot.bin src/boot/setup.bin kernel.bin
 	cat $^ > $@
-	truncate -s 32768 $@
+	truncate -s 131072 $@
 
 kernel.bin: src/boot/kernel_entry.o ${OBJ}
-	ld -m elf_i386 -o $@ -Ttext 0x1000 $^ --oformat binary
+	ld -m elf_i386 -o $@ -Ttext 0xa000 $^ --oformat binary
 
 %.o : %.c ${HEADERS}
 	gcc -I src -m32 -ffreestanding -fno-pie -c $< -o $@
 
 %.o : %.asm
 	nasm $< -f elf32 -o $@
+
+src/boot/setup.bin: src/boot/setup.asm
+	nasm $< -f  bin -o $@
+	truncate -s 4096 $@  # Pad to exactly 8 sectors (4096 bytes)
 
 %.bin : %.asm
 	nasm $< -f bin -o $@

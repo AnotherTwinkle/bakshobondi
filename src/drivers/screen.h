@@ -8,6 +8,7 @@
 #define REG_SCREEN_DATA 0x3D5
 
 void SCREEN_INIT();
+void clear_screen();
 
 int get_offset(int row, int col);
 
