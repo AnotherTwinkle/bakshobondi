@@ -1,8 +1,8 @@
 PROGRAM_SOURCES := $(wildcard src/programs/*/*.c)
 PROGRAM_HEADERS := $(wildcard src/programs/*/*.h)
 
-C_SOURCES = $(wildcard src/kernel/*.c src/drivers/*.c) $(PROGRAM_SOURCES)
-HEADERS = $(wildcard src/kernel/*.h src/drivers/*.h) $(PROGRAM_HEADERS)
+C_SOURCES = $(wildcard src/kernel/*.c src/drivers/*.c src/graphics/*.c) $(PROGRAM_SOURCES)
+HEADERS = $(wildcard src/kernel/*.h src/drivers/*.h src/graphics/*.h) $(PROGRAM_HEADERS)
 
 OBJ = ${C_SOURCES:.c=.o} src/kernel/interrupt.o
 
@@ -39,4 +39,4 @@ src/boot/setup.bin: src/boot/setup.asm
 
 clean:
 	rm -f *.bin *.o *.dis *.img *.map
-	rm -rf src/kernel/*.o src/boot/*.bin src/drivers/*.o programs/*/*.o
+	rm -rf src/kernel/*.o src/boot/*.bin src/drivers/*.o src/programs/*/*.o src/graphics/*o

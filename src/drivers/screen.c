@@ -8,6 +8,7 @@ The driver assumes a 320x200x256 VGA screen. Each color is represented by a byte
 
 Color mapping - RRRGGGBB
 */
+
 #include <kernel/io.h>
 #include "screen.h"
 
@@ -24,6 +25,8 @@ void SCREEN_INIT() {
     outportb(0x3C9, 0x3F);
     outportb(0x3C9, 0x3F);
     outportb(0x3C9, 0x3F);
+
+    screen_fill(rgb(0, 0, 0));
 }
 
 void screen_putpixel(int x, int y, u8 color) {
@@ -34,7 +37,7 @@ void screen_putpixel(int x, int y, u8 color) {
     vga[y * SCREEN_WIDTH + x] = color;
 }
 
-void screen_clear(u8 color) {
+void screen_fill(u8 color) {
     u8 *vga = (u8*)SCREEN_ADDR;
     for (int i = 0; i < SCREEN_SIZE; i++)
         vga[i] = color;

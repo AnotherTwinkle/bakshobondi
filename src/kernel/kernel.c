@@ -5,45 +5,28 @@
 #include "drivers/kbd.h"
 #include "drivers/screen.h"
 
+#include "graphics/pomelo.h"
+
 #include "programs/gameoflife/gol.h"
 #include "programs/kbdtest/kbdtest.h"
 
 #define SEED 0xBADFACE
-#define ON '*'
-#define OFF ' '
 
-static char itoa_buf[11];
-static char itoh_buf[10];
+static u8 ibuff[SCREEN_SIZE];
+static u8 next[SCREEN_SIZE];
 
-// u16 data[width][height] - Row major (y, x)
-const u16 AtlasData[8][8] = {
-  {0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000},
-  {0x0000, 0x0000, 0x0000, 0x00a0, 0x00a0, 0x00a0, 0x0000, 0x0000},
-  {0x0000, 0x0000, 0x00a0, 0x0000, 0x0000, 0x0000, 0x00a0, 0x0000},
-  {0x0000, 0x0000, 0x00a0, 0x0000, 0x0000, 0x0000, 0x00a0, 0x0000},
-  {0x0000, 0x0000, 0x00a0, 0x0000, 0x0000, 0x0000, 0x00a0, 0x0000},
-  {0x0000, 0x0000, 0x00a0, 0x00a0, 0x00a0, 0x00a0, 0x00a0, 0x0000},
-  {0x0000, 0x0000, 0x00a0, 0x0000, 0x0000, 0x0000, 0x00a0, 0x0000},
-  {0x0000, 0x0000, 0x00a0, 0x0000, 0x0000, 0x0000, 0x00a0, 0x0000},
-};
+static u8 get_ibuff_pixel(u32 x, u32 y) {
+	if (x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT) {
+		return EMPTY_PIXEL;
+	}
 
-void font_char(char c, u32 x, u32 y, u8 color) {
-    const u16 *glyph = AtlasData;
-
-    for (u32 yy = 0; yy < 8; yy++) {
-        for (u32 xx = 0; xx < 8; xx++) {
-        	screen_putpixel(x + xx, y + yy, AtlasData[yy][xx]);
-        }
-    }
+	return ibuff[y * SCREEN_WIDTH + x];
 }
 
-void font_str(const char *s, u32 x, u32 y, u8 color) {
-    char c;
-
-    while ((c = *s++) != 0) {
-        font_char(c, x, y, color);
-        x += 8;
-    }
+void cntm(int x, int y) {
+	if (get_ibuff_pixel(x, y) != 0x00 && (rand() % 100 < 20)) {
+		pml_setpixel(x, y, 0xff);
+	}
 }
 
 void main() {
@@ -55,18 +38,36 @@ void main() {
 	PIT_INIT(1000);
 	KBD_INIT();
 
-	screen_clear(0);
+	srand(SEED + get_ticks());
+
+	pml_setbuffer((u8*)ibuff, SCREEN_WIDTH, SCREEN_HEIGHT);
+	pml_draw_rect(20, 30, 100, 75, 0x87);
+	pml_draw_rect(50, 50, 100, 75, 0x87);
+	pml_draw_rect(60, 70, 200, 25, 0x87);
+	pml_draw_rect(200, 90, 75, 50, 0x87);
+
+	pml_draw_rect(50, 50, 4, 4, 0xff);
+	pml_draw_rect(250, 100, 4, 4, 0xff);
+
+	memcpy((u8*)next, (u8*)ibuff, SCREEN_SIZE);
+	pml_setbuffer((u8*)next, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	while(1) {
-
-		for (int i = 0; i < 320; i++) {
-			for (int j = 0; j < 200; j++) {
-				screen_putpixel(i, j, rgb(16*((i*j + get_ticks()*10) % (320*200))/(320*200),0,0));
+		memcpy((u8*)SCREEN_ADDR, (u8*)ibuff, SCREEN_SIZE);
+		// while(1);
+		for (int x = 0; x < SCREEN_WIDTH; x++) {
+			for (int y = 0; y < SCREEN_HEIGHT; y++) {
+				if (get_ibuff_pixel(x, y) != 0xff) continue;
+				cntm(x + 1, y);
+				cntm(x - 1, y);
+				cntm(x, y + 1);
+				cntm(x, y - 1);
 			}
 		}
-		sleep(1);
+		memcpy((u8*)ibuff, (u8*)next, SCREEN_SIZE);
+		sleep(20);
 	}
-}
 
+}
 
 
