@@ -1,3 +1,6 @@
+#ifndef IDT_H
+#define IDT_H
+
 #include "util.h"
 
 #define KERNEL_CODE_SEL 0x08
@@ -25,3 +28,6 @@ static struct {
 
 void set_idt_entry(int idx, u32 handler);
 void IDT_INIT();
+
+
+#endif // IDT_H

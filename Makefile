@@ -19,13 +19,13 @@ run : all
 
 os.img : src/boot/boot.bin src/boot/setup.bin kernel.bin
 	cat $^ > $@
-	truncate -s 131072 $@
+	truncate -s 16777216 $@
 
 kernel.bin: src/boot/kernel_entry.o ${OBJ}
 	ld -m elf_i386 -o $@ -Ttext 0xa000 $^ --oformat binary
 
 %.o : %.c ${HEADERS}
-	gcc -I src -m32 -ffreestanding -fno-pie -c $< -o $@
+	gcc -O0 -I src -m32 -ffreestanding -fno-pie -c $< -o $@
 
 %.o : %.asm
 	nasm $< -f elf32 -o $@

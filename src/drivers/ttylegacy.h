@@ -1,3 +1,6 @@
+#ifndef TTYLEGACY_H
+#define TTYLEGACY_H
+
 #define TTY_VIDEO_ADDRESS 0xb8000
 #define TTY_MAXR 25
 #define TTY_MAXC 80
@@ -24,3 +27,6 @@ void tty_flush(char *buf);
 
 void tty_scroll_up();
 int  tty_handle_scroll(int offset);
+
+
+#endif // TTYLEGACY_H

@@ -1,3 +1,6 @@
+#ifndef ISR_H
+#define ISR_H
+
 #include "util.h"
 
 typedef struct registers {
@@ -84,3 +87,6 @@ void isr_handler(RegisterState r);
 void irq_handler(RegisterState r);
 
 void register_interrupt_handler(u32 k, ISR handler);
+
+
+#endif // ISR_H

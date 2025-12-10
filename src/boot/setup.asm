@@ -19,7 +19,7 @@ GREETINGS_16BIT: db "Hello, 16 bits!", 0
 KERNEL_START equ 10   	  ; 8 sectors were loaded for stage 2 bootloader
 						  ; So kernel starts at sector 10
 
-KERNEL_OFFSET equ 0xa000 ; WARNING : make sure kernel is at 0x10000 while building
+KERNEL_OFFSET equ 0xa000 ; WARNING : make sure kernel is at 0xa000 while building
 
 [bits 16]
 setup:
@@ -39,7 +39,9 @@ setup:
 	out 0x92, al
 
 	call setup_display
+
 	call load_kernel 
+	call load_kernel_next 	; for some reason, cannot load more than 128 bytes on the first run
 
 	jmp switch_to_protected_mode  ; we are not returning
 
@@ -50,7 +52,7 @@ setup_display:
 	
 ; Kernel must be loaded in 16 bit mode using bios routines
 load_kernel:
-	mov dh, 30           	; Load 30 sectors
+	mov dh, 128          	; Load 128*512 bytes = 64kb for kernel
 	mov cl, KERNEL_START  	; Starting from this sector
 
 	mov bx, KERNEL_OFFSET 	; Load into ES:BX
@@ -59,6 +61,19 @@ load_kernel:
 	call disk_load
 
 	ret
+
+; Load the next 128 sectors after the kernel
+load_kernel_next:
+    mov dh, 2048               ; 1 MB more
+    mov cl, KERNEL_START + 128 ; Starting sector after first 128
+
+    ; Load into memory immediately after the first 64 KB
+    mov bx, KERNEL_OFFSET + 0x10000 ; 64KB offset
+
+    mov dl, [BOOT_DRIVE]      ; Target drive
+    call disk_load
+
+    ret
 
 switch_to_protected_mode:
 
@@ -83,7 +98,7 @@ pm_init:
 	mov gs, ax
 
 	; New stack
-	mov ebp, 0x80000
+	mov ebp, 0x800000 ; At 8 megabytes. 
 	mov esp, ebp
 
 	jmp main

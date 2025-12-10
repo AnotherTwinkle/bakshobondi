@@ -114,3 +114,4 @@ void srand(u32 seed) {
 	
 	next = seed;
 }
+

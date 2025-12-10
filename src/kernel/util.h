@@ -1,9 +1,20 @@
+#ifndef UTIL_H
+#define UTIL_H
+
 typedef unsigned  char  u8;
 typedef           char  s8; 
 typedef unsigned short u16;
 typedef          short s16;
 typedef unsigned   int u32;
 typedef            int s32;
+
+
+#define min(a, b) ({ __auto_type _a = (a); __auto_type _b = (b); \
+                     _a < _b ? _a : _b; })
+
+#define max(a, b) ({ __auto_type _a = (a); __auto_type _b = (b); \
+                     _a > _b ? _a : _b; })
+
 
 #define RAND_MAX 32767
 #define TRUE 1
@@ -25,3 +36,5 @@ void sleep(u32 ms);
 int rand();
 void srand(u32 seed);
 
+
+#endif

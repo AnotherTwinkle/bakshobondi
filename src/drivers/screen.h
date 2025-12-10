@@ -1,3 +1,6 @@
+#ifndef SCREEN_H
+#define SCREEN_H
+
 #include <kernel/util.h>
 
 #define SCREEN_WIDTH   320
@@ -11,3 +14,5 @@ void screen_fill(u8 color);
 void screen_putpixel(int x, int y, u8 color);
 
 u8 rgb(u8 r, u8 g, u8 b);
+
+#endif // SCREEN_H

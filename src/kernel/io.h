@@ -1,3 +1,6 @@
+#ifndef IO_H
+#define IO_H
+
 // Low level io implementation
 
 #define byte unsigned char
@@ -8,3 +11,5 @@ void outportb(word port, byte data);
 
 word inportw(word port);
 void outportw(word port, word data);
+
+#endif // IO_H

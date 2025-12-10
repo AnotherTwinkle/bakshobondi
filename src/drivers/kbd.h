@@ -1,3 +1,6 @@
+#ifndef KBD_H
+#define KBD_H
+
 #include "kernel/util.h"
 
 #define KBD_DATA_PORT 0x60
@@ -65,3 +68,6 @@ u32 kbd_queue_subscribe(KeyEventQueue* q);
 u32 kbd_queue_unsubscribe(KeyEventQueue* q, u32 id);
 void kbd_enqueue(KeyEventQueue* q, KeyEvent event);
 u8 kbd_dequeue(KeyEventQueue* q, int id, KeyEvent* out);
+
+
+#endif // KBD_H

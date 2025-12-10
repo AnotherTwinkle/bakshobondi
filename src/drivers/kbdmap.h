@@ -1,3 +1,6 @@
+#ifndef KBDMAP_H
+#define KBDMAP_H
+
 #include "kernel/util.h"
 
 #define CH_ESCAPE       0xF0
@@ -182,3 +185,6 @@ struct KeyMap {
 
 extern const struct KeyMap kbd_map;
 
+
+
+#endif // KBDMAP_H
