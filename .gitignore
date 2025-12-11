@@ -3,5 +3,7 @@
 **.dis
 **.img 
 **.map
+**.exe
 *.html
+
 test.c
