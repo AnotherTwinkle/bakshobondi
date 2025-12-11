@@ -10,7 +10,7 @@
 
 #include "programs/gameoflife/gol.h"
 #include "programs/kbdtest/kbdtest.h"
-#include "programs/cat/cat.h"
+#include "programs/cats/main.h"
 
 #define SEED 0xBADFACE
 

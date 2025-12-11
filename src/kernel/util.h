@@ -15,6 +15,7 @@ typedef            int s32;
 #define max(a, b) ({ __auto_type _a = (a); __auto_type _b = (b); \
                      _a > _b ? _a : _b; })
 
+#define randchoice(arr, n) ((arr)[randint(0, (n) - 1)])
 
 #define RAND_MAX 32767
 #define TRUE 1
@@ -35,6 +36,6 @@ void sleep(u32 ms);
 
 int rand();
 void srand(u32 seed);
-
+int randint(int l, int r);
 
 #endif

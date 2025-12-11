@@ -20,13 +20,13 @@ The "closest" black we can have is 0x20, which is kind of reddish.
 */
 
 void pml_setbuffer(u8 *buff, u16 buff_width, u16 buff_height);
-void pml_setpixel(u32 x, u32 y, u8 color);
-u8 pml_getpixel(u32 x, u32 y);
+void pml_setpixel(int x, int y, u8 color);
+u8 pml_getpixel(int x, int y);
 
-void pml_draw_rect(u32 x, u32 y, u32 w, u32 h, u8 color);
-void pml_draw_rect_ca(u32 x, u32 y, u32 w, u32 h, u8 color);
+void pml_draw_rect(int x, int y, int w, int h, u8 color);
+void pml_draw_rect_ca(int x, int y, int w, int h, u8 color);
 
-void pml_draw_sprite(SpriteSheet *sheet, u32 idx, u32 x, u32 y, u32 scale);
-void pml_draw_sprite_ca(SpriteSheet *sheet, u32 idx, u32 x, u32 y, u32 scale);
+void pml_draw_sprite(SpriteSheet *sheet, int idx, int x, int y, int scale);
+void pml_draw_sprite_ca(SpriteSheet *sheet, int idx, int x, int y, int scale);
 
 #endif

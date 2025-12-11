@@ -6,11 +6,9 @@ HEADERS = $(wildcard src/kernel/*.h src/drivers/*.h src/graphics/*.h) $(PROGRAM_
 
 OBJ = ${C_SOURCES:.c=.o} src/kernel/interrupt.o
 
-# --- DEBUGGING LINES ---
 $(info C_SOURCES: $(C_SOURCES))
 $(info PROGRAM_SOURCES: $(PROGRAM_SOURCES))
 $(info OBJ list: $(OBJ))
-# -----------------------
 
 all : os.img
 
@@ -19,7 +17,11 @@ run : all
 
 os.img : src/boot/boot.bin src/boot/setup.bin kernel.bin
 	cat $^ > $@
-	truncate -s 16777216 $@
+	truncate -s 10485701 $@
+	# Large spritesheet locations
+	# For simplicity, 128 sectors for each = (128*512) = 65536 = 0x10000
+	dd if=src/programs/cats/sprites/cat0.spritesheet of=os.img bs=512 seek=256 conv=notrunc
+	dd if=src/programs/cats/sprites/tileset.spritesheet of=os.img bs=512 seek=384 conv=notrunc
 
 kernel.bin: src/boot/kernel_entry.o ${OBJ}
 	ld -m elf_i386 -o $@ -Ttext 0xa000 $^ --oformat binary

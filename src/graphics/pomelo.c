@@ -17,7 +17,7 @@ void pml_setbuffer(u8 *buff, u16 buff_width, u16 buff_height) {
 }
 
 
-void pml_setpixel(u32 x, u32 y, u8 color) {
+void pml_setpixel(int x, int y, u8 color) {
     if (x >= BUFFER_WIDTH || y >= BUFFER_HEIGHT)
         return;
 
@@ -28,7 +28,7 @@ void pml_setpixel(u32 x, u32 y, u8 color) {
     CUR_BUFFER[y * BUFFER_WIDTH + x] = color;
 }
 
-u8 pml_getpixel(u32 x, u32 y) {
+u8 pml_getpixel(int x, int y) {
 	if (x > BUFFER_WIDTH || y > BUFFER_HEIGHT) {
 		return 0x0;
 	}
@@ -36,7 +36,7 @@ u8 pml_getpixel(u32 x, u32 y) {
 	return CUR_BUFFER[y * BUFFER_WIDTH + x];
 }
 
-void pml_draw_rect(u32 x, u32 y, u32 w, u32 h, u8 color) {
+void pml_draw_rect(int x, int y, int w, int h, u8 color) {
 	for (int xx = x; xx < (x + w); xx++) {
 		for (int yy = y; yy < (y + h); yy++) {
 			pml_setpixel(xx, yy, color);
@@ -44,21 +44,21 @@ void pml_draw_rect(u32 x, u32 y, u32 w, u32 h, u8 color) {
 	}
 }
 
-void pml_draw_rect_ca(u32 x, u32 y, u32 w, u32 h, u8 color) {
-	u32 adj_x = x - w/2;
-	u32 adj_y = y - h/2;
+void pml_draw_rect_ca(int x, int y, int w, int h, u8 color) {
+	int adj_x = x - w/2;
+	int adj_y = y - h/2;
 
 	pml_draw_rect(adj_x, adj_y, w, h, color);
 }
 
-void pml_draw_sprite(SpriteSheet *sheet, u32 idx, u32 x, u32 y, u32 scale) {
-	u32 width = sheet->width;
-	u32 height = sheet->height;
-	u32 unit_width = sheet->unit_width;
-	u32 unit_height = sheet->unit_height;
+void pml_draw_sprite(SpriteSheet *sheet, int idx, int x, int y, int scale) {
+	int width = sheet->width;
+	int height = sheet->height;
+	int unit_width = sheet->unit_width;
+	int unit_height = sheet->unit_height;
 
-	u32 sprite_x = (idx % (width/unit_width)) * unit_width;
-	u32 sprite_y = (idx / (width/unit_width)) * unit_height;
+	int sprite_x = (idx % (width/unit_width)) * unit_width;
+	int sprite_y = (idx / (width/unit_width)) * unit_height;
 
 	int sx = sprite_x;
 	for (int xx = x; xx < (x + unit_width * scale); xx += scale, sx++) {
@@ -74,13 +74,13 @@ void pml_draw_sprite(SpriteSheet *sheet, u32 idx, u32 x, u32 y, u32 scale) {
 	}
 }
 
-void pml_draw_sprite_ca(SpriteSheet *sheet, u32 idx, u32 x, u32 y, u32 scale) {
-    u32 unit_width = sheet->unit_width;
-    u32 unit_height = sheet->unit_height;
+void pml_draw_sprite_ca(SpriteSheet *sheet, int idx, int x, int y, int scale) {
+    int unit_width = sheet->unit_width;
+    int unit_height = sheet->unit_height;
 
     // Adjust x and y to the top-left corner for centering
-    u32 adj_x = x - (unit_width * scale) / 2;
-    u32 adj_y = y - (unit_height * scale) / 2;
+    int adj_x = x - (unit_width * scale) / 2;
+    int adj_y = y - (unit_height * scale) / 2;
 
     pml_draw_sprite(sheet, idx, adj_x, adj_y, scale);
 }

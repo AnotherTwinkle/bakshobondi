@@ -102,16 +102,30 @@ void sleep(u32 ms) {
     }
 }
 
-int rand() {
-	/* classic pseudo random generator */
-	
-	next = next * 1103515245 + 12345;
-	
-	return (next>>16) & RAND_MAX;
-}
+static u32 rng_state = 1;
 
 void srand(u32 seed) {
-	
-	next = seed;
+    if (seed == 0) seed = 1;  // avoid zero state
+    rng_state = seed;
 }
 
+int rand() {
+    u32 x = rng_state;
+    x ^= x << 13;
+    x ^= x >> 17;
+    x ^= x << 5;
+    rng_state = x;
+    return x;
+}
+
+int randint(int l, int r) {
+    int span = r - l + 1;
+    u32 limit = 0xFFFFFFFF - (0xFFFFFFFF % span);  // avoid bias
+
+    u32 x;
+    do {
+        x = rand();
+    } while (x >= limit);
+
+    return l + (x % span);
+}

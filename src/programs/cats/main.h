@@ -1,5 +1,5 @@
-#ifndef GAME_H
-#define GAME_H
+#ifndef MAIN_H
+#define MAIN_H
 
 void PROGRAM_CAT_MAIN();
 
