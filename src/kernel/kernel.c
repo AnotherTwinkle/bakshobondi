@@ -17,13 +17,13 @@
 void main() {
 	SCREEN_INIT();
 	IDT_INIT();
-
+	FPU_INIT();
 	__asm__ volatile("sti");
 
 	PIT_INIT(1000);
 	KBD_INIT();
 
 	srand(SEED + get_ticks());
-
+	
 	PROGRAM_CAT_MAIN();
 }

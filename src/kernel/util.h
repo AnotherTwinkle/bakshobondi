@@ -38,4 +38,6 @@ int rand();
 void srand(u32 seed);
 int randint(int l, int r);
 
+int roundf(float x);
+
 #endif

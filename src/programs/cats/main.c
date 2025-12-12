@@ -21,6 +21,37 @@ static u8 *next_buffer = arr_next_buffer;
 
 static int KBD_SUB_ID;
 
+Camera camera = {
+	.posx = 0.0f,
+	.posy = 0.0f,
+
+	.dx = 0.0f,
+	.dy = 0.0f,
+
+	.is_following_entity = 0,
+	.following_dx = 0x0,
+	.following_dy = 0x0,
+
+	.is_moving_to_point = 0,
+	.target_x = 0.0f,
+	.target_y = 0.0f,
+	.move_dx = 0.0f,
+	.move_dy = 0.0f
+};
+
+void world_draw_sprite(SpriteSheet *sheet, int idx, float x, float y, int scale) {
+	int screen_x  = (int)roundf((x - camera.posx) * TILE_SIZE * scale);
+	int screen_y  = (int)roundf((y - camera.posy) * TILE_SIZE * scale);
+	pml_draw_sprite(sheet, idx, screen_x, screen_y, scale);
+}
+
+void world_draw_sprite_ca(SpriteSheet *sheet, int idx, float x, float y, int scale) {
+	int screen_x  = (int)roundf((x - camera.posx) * TILE_SIZE * scale);
+	int screen_y  = (int)roundf((y - camera.posy) * TILE_SIZE * scale);
+	pml_draw_sprite_ca(sheet, idx, screen_x, screen_y, scale);
+}
+
+
 static void SWAP() {
 	u8 *tmp = cur_buffer;
 	cur_buffer = next_buffer;
@@ -46,10 +77,12 @@ void PROGRAM_CAT_MAIN() {
 								   &cat2_sprites, &cat3_sprites};
 	Cat cats[4];
 	for (int i = 0; i < 4; i++) {
-		cats[i].posx = 100;
-		cats[i].posy = 40 + i * 32;
+		cats[i].posx = 3.125f;
+		cats[i].posy = 1.25 + i;
+		cats[i].dx = 0;
+		cats[i].dy = 0;
 		cats[i].type = 0;
-		cats[i].state = WALKING;
+		cats[i].state = CAT_WALKING;
 		cats[i].orientation = (i % 2 ? FACING_LEFT : FACING_RIGHT);
 		cats[i].spritesheet = cat_sprites[i];
 
@@ -61,6 +94,8 @@ void PROGRAM_CAT_MAIN() {
 			);
 	}
 
+	camera_follow_entity(&camera, &cats[0].dx, &cats[0].dy);
+	//camera_move_to(&camera, 4, 2, 0.02f);
 	while(1) {
 		// Update
 		for (int i = 0; i < 4; i++) {
@@ -69,9 +104,9 @@ void PROGRAM_CAT_MAIN() {
 
 		// RENDERING
 		pml_draw_rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0xff);
-		for (int x = 0; x < SCREEN_WIDTH; x += SCALE * 16) {
-			for (int y = 0; y < SCREEN_HEIGHT; y += SCALE * 16) {
-				pml_draw_sprite(&level0_sprites, 16, x, y, SCALE);
+		for (int x = 0; x < VIEWPORT_WIDTH_TILES + 1; x++) {
+			for (int y = 0; y < VIEWPORT_HEIGHT_TILES + 1; y++) {
+				world_draw_sprite(&level0_sprites, 16, x, y, SCALE);
 				// pml_draw_rect(x, y, 16*);
 			}
 		}
@@ -87,22 +122,32 @@ void PROGRAM_CAT_MAIN() {
 		}
 		
 
-		// for (int i = 0; i < cats[i].anim_state.frame; i++) {
-		// 	pml_draw_rect(4*i, 0, 2, 2, 0xff);
-		// }
+		for (int i = 0; i < cats[0].anim_state.frame; i++) {
+			pml_draw_rect(4*i, 0, 2, 2, 0xff);
+		}
 
-		// for (int i = 0; i < cats[i].anim_state.anim->length; i++) {
-		// 	pml_draw_rect(4*i, 8, 2, 2, 0xff);
-		// }
+		for (int i = 0; i < cats[0].anim_state.anim->length; i++) {
+			pml_draw_rect(4*i, 8, 2, 2, 0xff);
+		}
 
-		// for (int i = 0; i < cats[i].state ; i++) {
-		// 	pml_draw_rect(4*i, 16, 2, 2, 0xff);
-		// }
+		for (int i = 0; i < cats[0].state ; i++) {
+			pml_draw_rect(4*i, 16, 2, 2, 0xff);
+		}
 
-		// for (int i = 0; i < cats[i].anim_state.looping_for ; i++) {
-		// 	pml_draw_rect(4*i, 24, 2, 2, 0xff);
-		// }
+		for (int i = 0; i < cats[0].anim_state.looping_for ; i++) {
+			pml_draw_rect(4*i, 24, 2, 2, 0xff);
+		}
 
+		for (int i = 0; i < (int)cats[0].posx; i++) {
+			pml_draw_rect(4*i, 32, 2, 2, 0xff);
+		}
+
+
+		for (int i = 0; i < (int)cats[0].posy; i++) {
+			pml_draw_rect(4*i, 40, 2, 2, 0xff);
+		}
+
+		update_camera(&camera);
 		sleep(10);
 		SWAP();
 	}

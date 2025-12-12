@@ -7,7 +7,7 @@ from datetime import datetime
 current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
-with open('assets.json', 'r') as f:
+with open('src/assets.json', 'r') as f:
 	data = json.load(f)
 
 h_prefix = """

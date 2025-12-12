@@ -1,3 +1,6 @@
+#ifndef DISK_H
+#define DISK_H
+
 #include "kernel/util.h"
 #include "kernel/io.h"
 
@@ -30,3 +33,6 @@ void load_bytes_to_buffer(char* dest, u32 sector_start, u32 size_bytes) {
     u32 sectors = (size_bytes + 511) / 512;
     ata_read_sector(sector_start, (u16*)dest, sectors);
 }
+
+
+#endif // DISK_H

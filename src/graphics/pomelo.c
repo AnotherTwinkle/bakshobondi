@@ -21,6 +21,10 @@ void pml_setpixel(int x, int y, u8 color) {
     if (x >= BUFFER_WIDTH || y >= BUFFER_HEIGHT)
         return;
 
+    if (x < 0 || y < 0) {
+    	return;
+    }
+
     if (color == EMPTY_PIXEL) {
     	return;
     }
@@ -30,6 +34,10 @@ void pml_setpixel(int x, int y, u8 color) {
 
 u8 pml_getpixel(int x, int y) {
 	if (x > BUFFER_WIDTH || y > BUFFER_HEIGHT) {
+		return 0x0;
+	}
+
+	if (x < 0 || y < 0) {
 		return 0x0;
 	}
 

@@ -4,7 +4,7 @@
     "mapHeight": 12,
     "layers": [
         {
-            "name": 2,
+            "name": "colliders|colliders",
             "tiles": [
                 {
                     "id": "0",
@@ -95,7 +95,7 @@
             "collider": true
         },
         {
-            "name": 1,
+            "name": "flowers",
             "tiles": [
                 {
                     "id": "13",
@@ -131,7 +131,7 @@
             "collider": false
         },
         {
-            "name": 0,
+            "name": "ground",
             "tiles": [
                 {
                     "id": "16",

@@ -16,4 +16,4 @@ typedef struct Level {
 	u32 **renering_layers;
 	u16 *rendering_flags;
 	u8  *colliders;
-};
+} Level;

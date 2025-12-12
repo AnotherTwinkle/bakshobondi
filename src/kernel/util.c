@@ -129,3 +129,15 @@ int randint(int l, int r) {
 
     return l + (x % span);
 }
+
+int roundf(float x) {
+    int xi = (int)x;
+    float diff = x - xi;
+
+    if (diff >= 0.5f)
+        return xi + 1;
+    else if (diff <= -0.5f)
+        return xi - 1;
+    else
+        return xi;
+}

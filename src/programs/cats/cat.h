@@ -6,39 +6,18 @@
 
 #include "graphics/pomelo.h"
 #include "sprites.h"
+#include "anim.h"
 
-#define IDLE 0
-#define WALKING 1
-#define LICKING 2
-#define SLEEPING 3
-#define CURLED 4
-#define SITTING_DOWN 5
-
-// Convention: Quadrants
-#define FACING_RIGHT 0
-#define FACING_LEFT 2
-#define FACING_UP 1
-#define FACING_DOWN 3
-
-typedef struct Animation {
-	const u32 *frames;
-	const u32 *durations;
-	u32 length;
-	u8 loop;
-
-	u32 loop_start_frame;
-} Animation;
-
-typedef struct AnimState {
-	Animation *anim;
-	u32 frame;
-	u32 ticks_left;
-	u8 looping;
-	u32 looping_for;
-} AnimState;
+#define CAT_IDLE 0
+#define CAT_WALKING 1
+#define CAT_LICKING 2
+#define CAT_SLEEPING 3
+#define CAT_CURLED 4
+#define CAT_SITTING_DOWN 5
 
 typedef struct Cat {
-	int posx, posy;
+	float posx, posy;
+	float dx, dy; // Amount moved last tick
 	AnimState anim_state;
 	SpriteSheet *spritesheet;
 	u8  type;
@@ -54,9 +33,6 @@ extern Animation anim_sitting;
 extern Animation anim_walking_left;
 extern Animation anim_walking_right;
 
-// Functions
-void set_anim(AnimState *s, Animation *a);
-void update_anim(AnimState *s);
 void cat_update(Cat *cat);
 void draw_cat(Cat *cat, int scale);
 
