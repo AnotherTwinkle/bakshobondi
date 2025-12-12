@@ -1,33 +1,97 @@
+
+		
 #include "graphics/pomelo.h"
 #include "drivers/disk.h"
 #include "sprites.h"
 
-#define CAT_SPRITES_MEM 0x200000
-u8 *cat_sprites_data = (u8*)CAT_SPRITES_MEM;
 
-#define TILESET_MEM 0x210000
-u8 *tileset_data = (u8*)TILESET_MEM;
+		
+#define CAT0_SPRITES_MEM 0x200000
+u8 *cat0_sprites_data = (u8*)CAT0_SPRITES_MEM;
 
-struct SpriteSheet tileset = {
-    .width = 240,
-    .height = 212,
-    .unit_width = 16,
-    .unit_height = 16,
-    .data = 0x0
+
+#define CAT1_SPRITES_MEM 0x208000
+u8 *cat1_sprites_data = (u8*)CAT1_SPRITES_MEM;
+
+
+#define CAT2_SPRITES_MEM 0x210000
+u8 *cat2_sprites_data = (u8*)CAT2_SPRITES_MEM;
+
+
+#define CAT3_SPRITES_MEM 0x218000
+u8 *cat3_sprites_data = (u8*)CAT3_SPRITES_MEM;
+
+
+#define LEVEL0_SPRITES_MEM 0x220000
+u8 *level0_sprites_data = (u8*)LEVEL0_SPRITES_MEM;
+
+
+		
+struct SpriteSheet cat0_sprites = {
+	.width = 128,
+	.height = 256,
+	.unit_width = 32,
+	.unit_height = 32,
+	.data = 0x0
 };
 
-struct SpriteSheet cat_sprites = {
-    .width = 128,
-    .height = 256,
-    .unit_width = 32,
-    .unit_height = 32,
-    .data = 0x0
-}; 
+
+struct SpriteSheet cat1_sprites = {
+	.width = 128,
+	.height = 256,
+	.unit_width = 32,
+	.unit_height = 32,
+	.data = 0x0
+};
+
+
+struct SpriteSheet cat2_sprites = {
+	.width = 128,
+	.height = 256,
+	.unit_width = 32,
+	.unit_height = 32,
+	.data = 0x0
+};
+
+
+struct SpriteSheet cat3_sprites = {
+	.width = 128,
+	.height = 256,
+	.unit_width = 32,
+	.unit_height = 32,
+	.data = 0x0
+};
+
+
+struct SpriteSheet level0_sprites = {
+	.width = 128,
+	.height = 112,
+	.unit_width = 16,
+	.unit_height = 16,
+	.data = 0x0
+};
+
 
 void init_sprites() {
-    load_bytes_to_buffer(cat_sprites_data, 256, 128*256);
-    cat_sprites.data = cat_sprites_data;
+			
+	load_bytes_to_buffer(cat0_sprites_data, 256, 128*256);
+	cat0_sprites.data = cat0_sprites_data;
 
-    load_bytes_to_buffer(tileset_data, 384, 240*212);
-    tileset.data = tileset_data;
+
+	load_bytes_to_buffer(cat1_sprites_data, 320, 128*256);
+	cat1_sprites.data = cat1_sprites_data;
+
+
+	load_bytes_to_buffer(cat2_sprites_data, 384, 128*256);
+	cat2_sprites.data = cat2_sprites_data;
+
+
+	load_bytes_to_buffer(cat3_sprites_data, 448, 128*256);
+	cat3_sprites.data = cat3_sprites_data;
+
+
+	load_bytes_to_buffer(level0_sprites_data, 512, 128*112);
+	level0_sprites.data = level0_sprites_data;
+
 }
+		

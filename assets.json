@@ -1,0 +1,49 @@
+{
+	"img_seek" : 256,
+	"mem_offset" : 2097152,
+	"programs" : [
+		{
+			"name" : "cats",
+			"path"    : "src/programs/cats",
+			"sheets"  : [
+				{
+					"name"  : "cat0",
+					"width" : 128,
+					"height" : 256,
+					"unit_width" : 32,
+					"unit_height" : 32
+
+				},
+				{
+					"name"  : "cat1",
+					"width" : 128,
+					"height" : 256,
+					"unit_width" : 32,
+					"unit_height" : 32
+				},
+				{
+					"name"  : "cat2",
+					"width" : 128,
+					"height" : 256,
+					"unit_width" : 32,
+					"unit_height" : 32
+				},
+				{
+					"name"  : "cat3",
+					"width" : 128,
+					"height" : 256,
+					"unit_width" : 32,
+					"unit_height" : 32
+				},
+				{
+					"name" : "level0",
+					"width" : 128,
+					"height" : 112,
+					"unit_width" : 16,
+					"unit_height" : 16
+				}
+			]
+
+		}
+	]
+}

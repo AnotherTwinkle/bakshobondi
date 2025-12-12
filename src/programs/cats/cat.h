@@ -5,6 +5,7 @@
 #include "kernel/pit.h"
 
 #include "graphics/pomelo.h"
+#include "sprites.h"
 
 #define IDLE 0
 #define WALKING 1
@@ -39,9 +40,10 @@ typedef struct AnimState {
 typedef struct Cat {
 	int posx, posy;
 	AnimState anim_state;
-	u8 type;
-	u8 state;
-	u8 orientation;
+	SpriteSheet *spritesheet;
+	u8  type;
+	u8  state;
+	u8  orientation;
 } Cat;
 
 // Defined animations
@@ -50,9 +52,12 @@ extern Animation anim_flat_sleep;
 extern Animation anim_curled_sleep;
 extern Animation anim_sitting;
 extern Animation anim_walking_left;
+extern Animation anim_walking_right;
 
 // Functions
 void set_anim(AnimState *s, Animation *a);
 void update_anim(AnimState *s);
+void cat_update(Cat *cat);
 void draw_cat(Cat *cat, int scale);
+
 #endif

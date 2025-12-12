@@ -1,0 +1,174 @@
+import json
+import os
+import sys
+from PIL import Image
+
+with open('assets.json', 'r') as f:
+	data = json.load(f)
+
+h_prefix = """
+#ifndef SPRITES_H
+#define SPRITES_H
+
+#include "kernel/util.h"
+#include "graphics/pomelo.h"
+"""
+
+h_def = "extern struct SpriteSheet {name}_sprites;"
+
+h_suffix = """
+void init_sprites();
+#endif
+"""
+
+c_prefix = """
+#include "graphics/pomelo.h"
+#include "drivers/disk.h"
+#include "sprites.h"
+"""
+
+c_data_def = """
+#define {name_upper}_SPRITES_MEM {mem_location}
+u8 *{name}_sprites_data = (u8*){name_upper}_SPRITES_MEM;
+"""
+
+c_struct_def = """
+struct SpriteSheet {name}_sprites = {{
+	.width = {width},
+	.height = {height},
+	.unit_width = {unit_width},
+	.unit_height = {unit_height},
+	.data = 0x0
+}};
+"""
+
+c_loader = """
+\tload_bytes_to_buffer({name}_sprites_data, {img_location}, {width}*{height});
+\t{name}_sprites.data = {name}_sprites_data;
+"""
+
+def map_to_bits(c, bits):
+    max_val = (1 << bits) - 1
+    return round((c / 255) * max_val)
+
+def convert_rgb(r, g, b, a):
+    if a == 0:
+        return 0x00
+    if r == 0 and g == 0 and b == 0:
+        return 0x20
+
+    r3 = map_to_bits(r, 3)
+    g3 = map_to_bits(g, 3)
+    b2 = map_to_bits(b, 2)
+
+    return (r3 << 5) | (g3 << 2) | b2
+
+def extract_binary(image_path):
+    try:
+        img = Image.open(image_path).convert("RGBA")
+    except Exception as e:
+        print(f"Error opening image: {e}")
+        sys.exit(1)
+
+    width, height = img.size
+    pixel_data = img.load()
+
+    byte_values = []
+
+    for y in range(height):
+        for x in range(width):
+            r, g, b, a = pixel_data[x, y]
+            v = convert_rgb(r, g, b, a)
+            byte_values.append(v)
+
+    return byte_values, width, height
+
+def expand_data():
+	# Figure out disk and memory locations for each spritesheet
+	cur_sector = data['img_seek']
+	cur_mem = data['mem_offset']
+	for i in range(len(data['programs'])):
+		program = data['programs'][i]
+		for sheet in program['sheets']:
+			size_bytes = sheet['width']*sheet['height']
+
+			needed_sectors = (size_bytes + 511)//512
+			sheet['seek'] = cur_sector
+			cur_sector += needed_sectors
+
+			sheet['mem_offset'] = cur_mem
+			cur_mem += size_bytes
+
+def generate_code_files():
+	for program in data['programs']:
+
+		# Generate Headers files first
+		SPRITES_H_CONTENT = f"""
+		{h_prefix}
+
+		{'\n'.join([h_def.format(name = sheet['name']) for sheet in program['sheets']])}
+
+		{h_suffix}
+		"""
+
+		SPRITES_C_CONTENT = f"""
+		{c_prefix}
+
+		{'\n'.join([c_data_def.format(name = sheet['name'],
+									  name_upper = sheet['name'].upper(),
+									  mem_location = hex(sheet['mem_offset'])
+			) for sheet in program['sheets']])}
+
+		{'\n'.join([c_struct_def.format(name = sheet['name'],
+										width = sheet['width'],
+										height = sheet['height'],
+										unit_width = sheet['unit_width'],
+										unit_height = sheet['unit_height']
+			) for sheet in program['sheets']])}
+
+void init_sprites() {{
+			{'\n'.join([c_loader.format(name = sheet['name'],
+									   img_location = sheet['seek'],
+									   width = sheet['width'],
+									   height = sheet['height']
+			) for sheet in program['sheets']])}
+}}
+		"""
+
+		with open(os.path.join(program['path'], 'sprites.c'), 'w') as f:
+			f.write(SPRITES_C_CONTENT)
+
+		with open(os.path.join(program['path'], 'sprites.h'), 'w') as f:
+			f.write(SPRITES_H_CONTENT)
+
+def generate_binary_files():
+	# Generate binaries from pngs and also stage commands use after compilation
+	commands = []
+	for program in data['programs']:
+		for sheet in program['sheets']:
+			image_path = os.path.join(program['path'], 'sprites', f'{sheet["name"]}.png')
+			bin_file   = os.path.join(program['path'], 'sprites', f'{sheet["name"]}.bin')
+
+			if not os.path.exists(image_path):
+				print(f"Python: Warning. {image_path} expected to exist but it does not. Stop.")
+				sys.exit()
+
+			byte_values, width, height = extract_binary(image_path)
+
+			with open(bin_file, 'wb') as f:
+				f.write(bytes(byte_values))
+
+			commands.append(
+				f"dd if={bin_file} of=os.img bs=512 seek={sheet['seek']} conv=notrunc"
+				)
+
+	with open('scripts/poke_into_img.sh', 'w') as f:
+		f.write('\n'.join(commands))
+
+	os.chmod('scripts/poke_into_img.sh', 0o755)
+
+
+if __name__ == "__main__":
+	expand_data()
+	generate_binary_files()
+	generate_code_files()

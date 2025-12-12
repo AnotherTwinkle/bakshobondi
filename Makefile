@@ -15,18 +15,18 @@ all : os.img
 run : all
 	qemu-system-x86_64 -drive format=raw,file=os.img
 
-os.img : src/boot/boot.bin src/boot/setup.bin kernel.bin
+scripts/poke_into_img.sh:
+	python3.12 scripts/gen_sprite_data.py
+
+os.img : src/boot/boot.bin src/boot/setup.bin kernel.bin scripts/poke_into_img.sh
 	cat $^ > $@
 	truncate -s 10485701 $@
-	# Large spritesheet locations
-	# For simplicity, 128 sectors for each = (128*512) = 65536 = 0x10000
-	dd if=src/programs/cats/sprites/cat0.spritesheet of=os.img bs=512 seek=256 conv=notrunc
-	dd if=src/programs/cats/sprites/tileset.spritesheet of=os.img bs=512 seek=384 conv=notrunc
+	./scripts/poke_into_img.sh
 
 kernel.bin: src/boot/kernel_entry.o ${OBJ}
 	ld -m elf_i386 -o $@ -Ttext 0xa000 $^ --oformat binary
 
-%.o : %.c ${HEADERS}
+%.o : %.c ${HEADERS} scripts/poke_into_img.sh
 	gcc -O0 -I src -m32 -ffreestanding -fno-pie -c $< -o $@
 
 %.o : %.asm
@@ -41,4 +41,5 @@ src/boot/setup.bin: src/boot/setup.asm
 
 clean:
 	rm -f *.bin *.o *.dis *.img *.map
-	rm -rf src/kernel/*.o src/boot/*.bin src/drivers/*.o src/programs/*/*.o src/graphics/*o
+	rm -rf src/kernel/*.o src/boot/*.bin src/drivers/*.o src/programs/*/*.o src/graphics/*o src/programs/*/*/*.bin
+	rm -f scripts/poke_into_img.sh
