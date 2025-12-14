@@ -24,10 +24,13 @@ typedef struct AnimState {
 	u32 ticks_left;
 	u8 looping;
 	u32 looping_for;
+	u8 paused;
 } AnimState;
 
 // Functions
 void set_anim(AnimState *s, Animation *a);
+void set_frame(AnimState *s, u32 frame);
+
 void update_anim(AnimState *s);
 
 #endif // ANIM_H

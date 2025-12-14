@@ -6,10 +6,21 @@ void set_anim(AnimState *s, Animation *a) {
 	s->looping = 0;
 	s->looping_for = 0;
 	s->ticks_left =  a->durations[0];
+	s->paused = 0;
+}
+
+void set_frame(AnimState *s, u32 frame) {
+	s->frame = frame;
+
+	// Reset other attribs
+	s->looping = 0;
+	s->looping_for = 0;
+	s->ticks_left = s->anim->durations[frame];
 }
 
 void update_anim(AnimState *s) {
 	if (!s->anim) return;
+	if (s->paused) return;
 
 	if (s->ticks_left > 0) {
 		s->ticks_left--;

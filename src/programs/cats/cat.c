@@ -2,6 +2,7 @@
 #include "graphics/pomelo.h"
 #include "sprites.h"
 
+#include "drivers/kbd.h"
 #include "drivers/screen.h"
 #include "main.h"
 
@@ -167,6 +168,98 @@ void cat_idle_think(Entity *e) {
 
 	if (chance < 10 && e->anim_state.anim == &anim_licking && e->anim_state.looping_for > 20) {
 		set_anim(&e->anim_state, &anim_curled_sleep);
+	}
+}
+
+void cat_manual_update(Entity *e) {
+	Cat *cat = (Cat *)e;
+
+	float speed = 0.1f;
+	float step = 1;
+
+	float old_x = cat->base.x;
+	float old_y = cat->base.y;
+
+	float next_x = (cat->base.orientation == FACING_RIGHT ? cat->base.x + step : (cat->base.orientation == FACING_LEFT ? cat->base.x - step : cat->base.x));
+	float next_y = (cat->base.orientation == FACING_DOWN ? cat->base.y + step : (cat->base.orientation == FACING_UP ? cat->base.y - step : cat->base.y));
+	float dx = (cat->base.orientation == FACING_RIGHT ? speed : (cat->base.orientation == FACING_LEFT ? -speed: 0));
+	float dy = (cat->base.orientation == FACING_DOWN ? speed : (cat->base.orientation == FACING_UP ? -speed: 0));
+
+	// Check what key corresponds to the current orientation;
+	u8 needed_key;
+	switch (cat->base.orientation) {
+		case FACING_DOWN:
+			needed_key = KEY_S;
+			break;
+		case FACING_UP:
+			needed_key = KEY_W;
+			break;
+		case FACING_LEFT:
+			needed_key = KEY_A;
+			break;
+		case FACING_RIGHT:
+			needed_key = KEY_D;
+			break;
+		default:
+			needed_key = 0x0;
+	}
+
+	if (!kbd_is_key_down[needed_key] || is_pos_collider(cur_level_ptr, next_x, next_y)) {
+		if (cat->base.anim_state.frame != 0) set_frame(&cat->base.anim_state, 0);
+		cat->base.anim_state.paused = 1;
+	} else {
+		cat->base.anim_state.paused = 0;
+		cat->base.x += dx;
+		cat->base.y += dy;
+	}
+	cat->dx = cat->base.x - old_x;;
+	cat->dy = cat->base.y - old_y;
+
+	update_anim(&cat->base.anim_state);
+}
+void cat_manual_think(Entity *e) {
+	/*
+	This think will check if a key press is dispatched that changes the current orientation.
+	Continued press dows do not change orientation and not useful
+	*/
+	Cat *cat = (Cat *)e;
+
+	cat->base.next_think = TICKS ; // Pretty fast;
+	if (kbd_result == 0 || !(kbd_event.flags & KBD_FLAG_MAKE)) {
+		return;
+	}
+
+	Animation* anim_pnt;
+	u8 orin;
+	u8 flag = 1;
+
+	switch (kbd_event.code) {
+		case KEY_W:
+			anim_pnt = &anim_walking_up;
+			orin = FACING_UP;
+			break;
+		case KEY_S:
+			anim_pnt = &anim_walking_down;
+			orin = FACING_DOWN;
+			break;
+		case KEY_A:
+			anim_pnt = &anim_walking_left;
+			orin = FACING_LEFT;
+			break;
+		case KEY_D:
+			anim_pnt = &anim_walking_right;
+			orin = FACING_RIGHT;
+			break;
+		default:
+			flag = 0;
+			break;
+	}
+
+	if (flag) {
+		if (cat->base.orientation != orin) {
+			cat->base.orientation = orin;
+			set_anim(&cat->base.anim_state, anim_pnt);
+		}
 	}
 }
 

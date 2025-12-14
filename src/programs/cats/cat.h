@@ -19,6 +19,8 @@
 typedef struct Cat {
 	Entity base;
 	float dx, dy; // Amount moved last tick
+
+	u8 manual_movement_button_pressed;
 } Cat;
 
 // Defined animations
@@ -36,5 +38,8 @@ void cat_walk_think(Entity* e);
 
 void cat_idle_update(Entity* e);
 void cat_idle_think(Entity* e);
+
+void cat_manual_update(Entity* e);
+void cat_manual_think(Entity* e);
 
 #endif

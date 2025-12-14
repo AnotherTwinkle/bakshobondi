@@ -11,6 +11,7 @@ char print_buf[12];
 
 struct KeyboardState kbd_state;
 struct KeyEventQueue kbd_queue;
+u8 kbd_is_key_down[256];
 
 // Helper function to find the minimum active subscriber head
 u32 _kbd_min_subscriber_head(KeyEventQueue* q) {
@@ -136,38 +137,44 @@ void callback(RegisterState r) {
 	if (kbd_state.waitingForEscapeData) {
 		kbd_state.waitingForEscapeData = 0;
 	} else {
-		event.flags |= 0x1;
+		event.flags |= KBD_FLAG_MAKE;
 	}
 
 	// Handle keys that alter keyboard state
 	if (code == KEY_LCTRL || code == KEY_RCTRL) {
 		kbd_state.ctrlPressed ^= 1;
-		event.flags |= 0x2;
+		event.flags |= KBD_FLAG_ALTER_STATE;
 	} else if (code == KEY_LSHIFT || code == KEY_RSHIFT) {
 		kbd_state.shiftPressed ^= 1;
-		event.flags |= 0x2;
+		event.flags |= KBD_FLAG_ALTER_STATE;
 	} else if (code == KEY_LALT || code == KEY_RALT) {
 		kbd_state.altPresssed ^= 1;
-		event.flags |= 0x2;
+		event.flags |= KBD_FLAG_ALTER_STATE;
 	} else if (code == KEY_LSUPER || code == KEY_RSUPER) {
 		kbd_state.superPressed ^= 1;
-		event.flags |= 0x2;
+		event.flags |= KBD_FLAG_ALTER_STATE;
 	}
 
 	// set numpad flag
-	if (kbd_map.numlock[code]) event.flags |= 0x4;
+	if (kbd_map.numlock[code]) event.flags |= KBD_FLAG_NUMPAD;
 
 	// set printable flag
-	if (is_code_printable(code)) event.flags |= 0x8;
+	if (is_code_printable(code)) event.flags |= KBD_FLAG_MAPPED;
 
 	// set control char flag
 	if (code == KEY_RETURN || code == KEY_BACKSPACE || code == KEY_TAB) {
-		event.flags |= 0x10;
+		event.flags |= KBD_FLAG_CCHAR;
 	}
 
 	if (kbd_state.waitingForSecondByte) {
-		event.flags |= 0x20;
+		event.flags |= KBD_FLAG_EXTENDED;
 		kbd_state.waitingForSecondByte = 0;
+	}
+
+	if (event.flags & KBD_FLAG_MAKE) {
+		kbd_is_key_down[event.code] = 1;
+	} else {
+		kbd_is_key_down[event.code] = 0;
 	}
 
 	kbd_enqueue(&kbd_queue, event);

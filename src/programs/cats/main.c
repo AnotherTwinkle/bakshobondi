@@ -94,7 +94,7 @@ void PROGRAM_CAT_MAIN() {
 	    entity_add(&cat->base);
 	}
 
-	for (int i = 2; i < 4; i++) {
+	for (int i = 2; i < 3; i++) {
 	    Cat *cat = (Cat *)entity_alloc(sizeof(Cat));
 	    if (!cat)
 	        break;
@@ -105,8 +105,8 @@ void PROGRAM_CAT_MAIN() {
 	    cat->base.orientation = (i % 2) ? FACING_UP : FACING_DOWN;
 	    cat->base.spritesheet = cat_sprites[i];
 
-	    cat->base.update = cat_walk_update;
-	    cat->base.think  = cat_walk_think;
+	    cat->base.update = cat_manual_update;
+	    cat->base.think  = cat_manual_think;
 	    cat->base.next_think = TICKS + 10;
 
 		cat->base.anim_state = cat_anim_state;
@@ -117,13 +117,13 @@ void PROGRAM_CAT_MAIN() {
 	            : &anim_walking_down
 	    );
 
-	    cat->dx = 0;camera->posx = min(camera->posx, (float)cur_level_ptr->width_t - ((float)SCREEN_WIDTH)/(16.0f*camera->zoom) - 2);
-            
+	    cat->dx = 0;
 	    cat->dy = 0;
 
+	    cat->manual_movement_button_pressed = 0;
 	    entity_add(&cat->base);
+		camera_follow_entity(&camera, &cat->dx, &cat->dy);
 	}
-
 	while(1) {
 		// Keyboard
 		kbd_result = kbd_dequeue(&kbd_queue, KBD_SUB_ID, &kbd_event);
@@ -131,12 +131,13 @@ void PROGRAM_CAT_MAIN() {
 		// Entity update and thinking
 		for (int i = 0; i < active_entity_count; i++) {
 			Entity *e = active_entities[i];
-			if (e->update) {
-				e->update(e);
-			}
 
 			if (e->think && TICKS >= e->next_think){
 				e->think(e);
+			}
+
+			if (e->update) {
+				e->update(e);
 			}
 		}
 
@@ -144,8 +145,9 @@ void PROGRAM_CAT_MAIN() {
 		pml_draw_rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0xff);
 		for (int l = 0; l < cur_level_ptr->layer_count; l++) {
 			if (cur_level_ptr->rendering_flags[l] & RF_HOVER) continue;
-			for (int x = 0; x < cur_level_ptr->width_t; x++) {
-				for (int y = 0; y < cur_level_ptr->height_t; y++) {
+
+			for (int x = camera.posx; x < (int)(camera.posx +  (float)SCREEN_WIDTH/(16.0f*camera.zoom)) + 1 ; x++) { // Only render spsrites in our current viewport
+				for (int y = camera.posy; y < (int)(camera.posy + (float)SCREEN_WIDTH/(16.0f*camera.zoom)) + 1 ; y++) {
 					s16 sprite = cur_level_ptr->rendering_layers[l][x*cur_level_ptr->height_t + y];
 					if (sprite < 0) continue;
 					level_draw_sprite(cur_level_ptr->spritesheet, sprite, x, y, camera.zoom);
@@ -161,8 +163,8 @@ void PROGRAM_CAT_MAIN() {
 		// Level Rendering (Hover layers)
 		for (int l = 0; l < cur_level_ptr->layer_count; l++) {
 			if (!(cur_level_ptr->rendering_flags[l] & RF_HOVER)) continue;
-			for (int x = 0; x < cur_level_ptr->width_t; x++) {
-				for (int y = 0; y < cur_level_ptr->height_t; y++) {
+			for (int x = camera.posx; x < (int)(camera.posx +  (float)SCREEN_WIDTH/(16.0f*camera.zoom)) + 1 ; x++) {
+				for (int y = camera.posy; y < (int)(camera.posy + (float)SCREEN_WIDTH/(16.0f*camera.zoom)) + 1 ; y++) {
 					s16 sprite = cur_level_ptr->rendering_layers[l][x*cur_level_ptr->height_t + y];
 					if (sprite < 0) continue;
 					level_draw_sprite(cur_level_ptr->spritesheet, sprite, x, y, camera.zoom);

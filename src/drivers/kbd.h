@@ -62,6 +62,7 @@ struct KeyboardState {
 
 extern struct KeyboardState kbd_state;
 extern struct KeyEventQueue kbd_queue;
+extern u8 kbd_is_key_down[256];
 
 void kbd_queue_init(KeyEventQueue* q);
 u32 kbd_queue_subscribe(KeyEventQueue* q);

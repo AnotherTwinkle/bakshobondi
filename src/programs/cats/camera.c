@@ -57,16 +57,10 @@ void camera_update(Camera* camera) {
     } else { // Camera is free
         if (kbd_result != 0 && (kbd_event.flags & KBD_FLAG_MAKE)) {
             float camera_speed = 0.2f;
-            float zoom_speed = 1;
             if (kbd_event.code == KEY_W) camera->posy -= camera_speed;
             if (kbd_event.code == KEY_S) camera->posy += camera_speed;
             if (kbd_event.code == KEY_A) camera->posx -= camera_speed;
             if (kbd_event.code == KEY_D) camera->posx += camera_speed;
-
-            if (kbd_event.code == KEY_Q) camera->zoom += zoom_speed;
-            if (kbd_event.code == KEY_E) camera->zoom -= zoom_speed;
-
-            camera->zoom = min(3, max(1, camera->zoom));
 
             camera->posx = min(camera->posx, (float)cur_level_ptr->width_t - ((float)SCREEN_WIDTH)/(16.0f*camera->zoom) - 2);
             camera->posx = max(camera->posx, 1);
@@ -78,7 +72,17 @@ void camera_update(Camera* camera) {
 
     camera->dx = camera->posx - old_x;
     camera->dy = camera->posy - old_y;
+
+    if (kbd_result != 0 && (kbd_event.flags & KBD_FLAG_MAKE)) {
+        float zoom_speed = 1;
+        if (kbd_event.code == KEY_Q) camera->zoom += zoom_speed;
+        if (kbd_event.code == KEY_E) camera->zoom -= zoom_speed;
+
+        camera->zoom = min(3, max(1, camera->zoom));
+    }
+
 }
+
 
 void camera_follow_entity(Camera* camera, float* entity_dx, float* entity_dy) {
 	camera->is_following_entity = 1;
