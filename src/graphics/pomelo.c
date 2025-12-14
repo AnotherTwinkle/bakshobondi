@@ -75,8 +75,8 @@ void pml_draw_sprite(SpriteSheet *sheet, int idx, int x, int y, int scale) {
 			pml_draw_rect(xx, yy, scale, scale, color);
 
 			
-			// if (xx == (x + (unit_width-1) * scale) || yy == (y + (unit_height-1) * scale) ||
-			// 	xx == x || yy == y) pml_draw_rect(xx, yy, scale, scale, BLACK);
+			if (xx == (x + (unit_width-1) * scale) || yy == (y + (unit_height-1) * scale) ||
+				xx == x || yy == y) pml_draw_rect(xx, yy, scale, scale, BLACK);
 		}
 	}
 }
@@ -123,4 +123,51 @@ void pml_draw_sprite_ca_colored(SpriteSheet *sheet, int idx, int x, int y, int s
     int adj_y = y - (unit_height * scale) / 2;
 
     pml_draw_sprite_colored(sheet, idx, adj_x, adj_y, scale, color);
+}
+
+int compute_spritesheet_bounding_box(SpriteSheet *sheet,
+                                     u32 *bounding_box_data_arr)
+{
+    int width = sheet->width;
+    int height = sheet->height;
+    int unit_width = sheet->unit_width;
+    int unit_height = sheet->unit_height;
+
+    int sprites_x = width / unit_width;
+    int sprites_y = height / unit_height;
+
+    for (int idx = 0; idx < sprites_x * sprites_y; idx++) {
+
+        int sprite_x = (idx % sprites_x) * unit_width;
+        int sprite_y = (idx / sprites_x) * unit_height;
+
+        int fx = 0xFF, lx = 0, fy = 0xFF, ly = 0;
+
+        for (int y = 0; y < unit_height; y++) {
+            for (int x = 0; x < unit_width; x++) {
+                u8 color = sheet->data[(sprite_y + y)*width + (sprite_x + x)];
+                if (color != 0x0) {
+                    if (x < fx) fx = x;
+                    if (x > lx) lx = x;
+                    if (y < fy) fy = y;
+                    if (y > ly) ly = y;
+                }
+            }
+        }
+
+        u32 res;
+        if (fx == 0xFF) {
+            /* fully transparent sprite */
+            res = 0;
+        } else {
+            res =  fx
+                | (lx << 8)
+                | (fy << 16)
+                | (ly << 24);
+        }
+
+        bounding_box_data_arr[idx] = res;
+    }
+
+    return 0;
 }

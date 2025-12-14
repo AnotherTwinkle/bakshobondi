@@ -147,6 +147,12 @@ void PROGRAM_CAT_MAIN() {
 		kbd_result = kbd_dequeue(&kbd_queue, KBD_SUB_ID, &kbd_event);
 
 		// Entity update and thinking
+
+		for (int i = 0; i < active_entity_count; i++) {
+			Entity *e = active_entities[i];
+			movement_update(e);
+			update_anim(&e->anim_state);
+		}
 		for (int i = 0; i < active_entity_count; i++) {
 			Entity *e = active_entities[i];
 
@@ -157,12 +163,6 @@ void PROGRAM_CAT_MAIN() {
 			if (e->update) {
 				e->update(e);
 			}
-		}
-
-		for (int i = 0; i < active_entity_count; i++) {
-			Entity *e = active_entities[i];
-			movement_update(e);
-			update_anim(&e->anim_state);
 		}
 
 		// Level Rendering
@@ -208,16 +208,22 @@ void PROGRAM_CAT_MAIN() {
 		// 	pml_draw_rect(4*i, 16, 2, 2, 0xff);
 		// }
 
-		// for (int i = 0; i < cats[0].anim_state.looping_for ; i++) {
-		// 	pml_draw_rect(4*i, 24, 2, 2, 0xff);
-		// }
+		for (int j = 0; j < 32; j++) {
+			int col;
+			if (cat0_sprites.sprite_bounding_box[0] & (1 << j)) {
+				col = 0x22;
+			} else {
+				col = 0xff;
+			}
+			pml_draw_rect(8*j, 24, 4, 4, col);
+		 }
 
-		for (int i = 0; i < (int)active_entities[0]->x; i++) {
+		for (int i = 0; i < (int)active_entities[2]->x; i++) {
 			pml_draw_rect(4*i, 32, 2, 2, 0xff);
 		}
 
 
-		for (int i = 0; i < (int)active_entities[0]->y; i++) {
+		for (int i = 0; i < (int)active_entities[2]->y; i++) {
 			pml_draw_rect(4*i, 40, 2, 2, 0xff);
 		}
 

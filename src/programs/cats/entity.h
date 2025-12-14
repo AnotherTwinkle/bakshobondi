@@ -17,6 +17,11 @@
 #define ENTITY_MOVABLE (1 << 0)
 #define ENTITY_ANIM_DRIVEN_BY_MOVE (1 << 1)
 
+#define BB_FIRST_X(bb)  ((bb)       & 0xFF)
+#define BB_LAST_X(bb)   (((bb) >> 8)  & 0xFF)
+#define BB_FIRST_Y(bb)  (((bb) >> 16) & 0xFF)
+#define BB_LAST_Y(bb)   (((bb) >> 24) & 0xFF)
+
 extern int active_entity_count;
 
 typedef struct Entity Entity;
@@ -68,5 +73,7 @@ void entity_add(Entity *e);
 void entity_remove(int index);
 void entity_render(Entity *entity, int scale);
 void entity_set_state(Entity *entity, update_func update, think_func think);
+void set_intent_from_orientation(Entity *e, u8 dir);
+u8 check_entity_collision(Entity* a, Entity* b, float ax, float ay, float bx, float by);
 
 #endif // ENTITY_H

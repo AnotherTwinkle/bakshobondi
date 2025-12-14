@@ -122,8 +122,8 @@ void cat_walk_think(Entity *e) {
 		cat->base.move.wants_to_move = 0;
 		set_anim(&cat->base.anim_state, &anim_sitting);
 		entity_set_state(&cat->base, &cat_idle_update, &cat_idle_think);
-
 	}
+
 }
 
 
@@ -132,7 +132,7 @@ void cat_idle_update(Entity *e) {
 }
 
 void cat_idle_think(Entity *e) {
-	e->next_think = TICKS + 10;
+	e->next_think = TICKS + 30;
 
 	int chance = randint(1, 100);
 	if (chance < 30 && e->anim_state.anim == &anim_sitting && e->anim_state.looping_for > 5) {
@@ -142,6 +142,24 @@ void cat_idle_think(Entity *e) {
 	if (chance < 10 && e->anim_state.anim == &anim_licking && e->anim_state.looping_for > 20) {
 		set_anim(&e->anim_state, &anim_curled_sleep);
 	}
+
+    u8 entity_bumped = 0;
+    for (int i = 0; i < active_entity_count; i++) {
+        Entity* o = active_entities[i];
+        if (o == e) continue;
+
+        if (check_entity_collision(o, e, o->move.nx, o->move.ny, e->x, e->y)) {
+            entity_bumped = 1;
+        }
+    }
+
+    if (entity_bumped) {
+   		set_intent_from_orientation(e, rand() % 4);
+   		e->move.wants_to_move = 1;
+   		e->next_think = TICKS + 10;
+   		entity_set_state(e, &cat_walk_update, &cat_walk_think);
+    }
+
 }
 
 void cat_manual_update(Entity *e) {

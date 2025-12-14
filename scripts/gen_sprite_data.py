@@ -34,6 +34,7 @@ c_prefix = """
 c_data_def = """
 #define {name_upper}_SPRITES_MEM {mem_location}
 u8 *{name}_sprites_data = (u8*){name_upper}_SPRITES_MEM;
+u32 {name}_sprites_bounding_box_data[{tot_size}];
 """
 
 c_struct_def = """
@@ -42,13 +43,16 @@ struct SpriteSheet {name}_sprites = {{
 	.height = {height},
 	.unit_width = {unit_width},
 	.unit_height = {unit_height},
-	.data = 0x0
+	.data = 0x0,
+	.sprite_bounding_box = 0x0
 }};
 """
 
 c_loader = """
 \tload_bytes_to_buffer({name}_sprites_data, {img_location}, {width}*{height});
 \t{name}_sprites.data = {name}_sprites_data;
+\tcompute_spritesheet_bounding_box(&{name}_sprites, {name}_sprites_bounding_box_data);
+\t{name}_sprites.sprite_bounding_box = {name}_sprites_bounding_box_data;
 """
 
 def map_to_bits(c, bits):
@@ -126,7 +130,8 @@ Memory Offset : {hex(data['mem_offset'])}
 
 {'\n'.join([c_data_def.format(name = sheet['name'],
 							  name_upper = sheet['name'].upper(),
-							  mem_location = hex(sheet['mem_offset'])
+							  mem_location = hex(sheet['mem_offset']),
+							  tot_size = int(sheet['width']*sheet['height']/(sheet['unit_width'] * sheet['unit_height']))
 	) for sheet in program['sheets']])}
 
 {'\n'.join([c_struct_def.format(name = sheet['name'],
