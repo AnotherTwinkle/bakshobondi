@@ -18,9 +18,6 @@
 
 typedef struct Cat {
 	Entity base;
-	float dx, dy; // Amount moved last tick
-
-	u8 manual_movement_button_pressed;
 } Cat;
 
 // Defined animations

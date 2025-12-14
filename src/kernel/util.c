@@ -141,3 +141,14 @@ int roundf(float x) {
     else
         return xi;
 }
+
+float ABS(float x) {
+    return (x < 0.0f) ? -x : x;
+}
+
+float SIGN(float x) {
+    if (x > 0.0f) return 1.0f;
+    if (x < 0.0f) return -1.0f;
+    return 0.0f;
+}
+

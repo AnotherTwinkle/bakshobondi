@@ -40,4 +40,7 @@ int randint(int l, int r);
 
 int roundf(float x);
 
+float ABS(float x);
+float SIGN(float x);
+
 #endif

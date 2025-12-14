@@ -25,7 +25,10 @@ void level_draw_sprite(SpriteSheet *sheet, int idx, float x, float y, float scal
 void level_draw_sprite_ca(SpriteSheet *sheet, int idx, float x, float y, float scale);
 void level_draw_sprite_colored(SpriteSheet *sheet, int idx, float x, float y, float scale, u8 color);
 void level_draw_sprite_ca_colored(SpriteSheet *sheet, int idx, float x, float y, float scale, u8 color);
+
 u8 is_tile_collider(Level* level, int x, int y);
-u8 is_pos_collider(Level* level, float, float y);
+u8 is_pos_collider(Level* level, float x, float y);
+u8 is_pos_out_of_bounds(Level* level, float x, float y);
+u8 is_pos_invalid(Level* level, float x, float y);
 
 #endif // LEVEL_H

@@ -72,3 +72,11 @@ u8 is_tile_collider(Level* level, int x, int y) {
 u8 is_pos_collider(Level* level, float x, float y) {
 	return is_tile_collider(level, (int)x, (int)y);
 }
+
+u8 is_pos_out_of_bounds(Level* level, float x, float y) {
+	return x >= (level->width_t-1) || x < 1  || y >= (level->height_t-1) || y < 1;
+}
+
+u8 is_pos_invalid(Level* level, float x, float y) {
+	return is_pos_collider(level, x, y) || is_pos_out_of_bounds(level, x, y);
+}

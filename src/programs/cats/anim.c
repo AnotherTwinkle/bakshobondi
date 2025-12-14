@@ -7,6 +7,7 @@ void set_anim(AnimState *s, Animation *a) {
 	s->looping_for = 0;
 	s->ticks_left =  a->durations[0];
 	s->paused = 0;
+	s->paused_for = 0;
 }
 
 void set_frame(AnimState *s, u32 frame) {
@@ -20,7 +21,12 @@ void set_frame(AnimState *s, u32 frame) {
 
 void update_anim(AnimState *s) {
 	if (!s->anim) return;
-	if (s->paused) return;
+	if (s->paused) {
+		s->paused_for++;
+		return;
+	} else {
+		s->paused_for = 0;
+	}
 
 	if (s->ticks_left > 0) {
 		s->ticks_left--;

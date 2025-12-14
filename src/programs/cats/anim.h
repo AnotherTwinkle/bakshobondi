@@ -25,6 +25,7 @@ typedef struct AnimState {
 	u8 looping;
 	u32 looping_for;
 	u8 paused;
+	u32 paused_for;
 } AnimState;
 
 // Functions

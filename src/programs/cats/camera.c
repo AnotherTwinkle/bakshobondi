@@ -26,9 +26,8 @@ void camera_update(Camera* camera) {
     float old_y = camera->posy;
 
     if (camera->is_following_entity) {
-
-        camera->posx += *(camera->following_dx);
-        camera->posy += *(camera->following_dy);
+        camera->posx = *camera->following_x - ((float)(SCREEN_WIDTH)/(16.0f*camera->zoom))/2;
+        camera->posy = *camera->following_y - ((float)(SCREEN_HEIGHT)/(16.0f*camera->zoom))/2;
 
     } else if (camera->is_moving_to_point) {
 
@@ -61,12 +60,6 @@ void camera_update(Camera* camera) {
             if (kbd_event.code == KEY_S) camera->posy += camera_speed;
             if (kbd_event.code == KEY_A) camera->posx -= camera_speed;
             if (kbd_event.code == KEY_D) camera->posx += camera_speed;
-
-            camera->posx = min(camera->posx, (float)cur_level_ptr->width_t - ((float)SCREEN_WIDTH)/(16.0f*camera->zoom) - 2);
-            camera->posx = max(camera->posx, 1);
-
-            camera->posy = min(camera->posy, (float)cur_level_ptr->height_t - ((float)SCREEN_HEIGHT)/(16.0f*camera->zoom) - 2);
-            camera->posy = max(0, camera->posy);
         }
     }
 
@@ -81,13 +74,18 @@ void camera_update(Camera* camera) {
         camera->zoom = min(3, max(1, camera->zoom));
     }
 
+    camera->posx = min(camera->posx, (float)cur_level_ptr->width_t - ((float)SCREEN_WIDTH)/(16.0f*camera->zoom) - 2);
+    camera->posx = max(camera->posx, 1);
+
+    camera->posy = min(camera->posy, (float)cur_level_ptr->height_t - ((float)SCREEN_HEIGHT)/(16.0f*camera->zoom) - 2);
+    camera->posy = max(0, camera->posy);
+
 }
 
-
-void camera_follow_entity(Camera* camera, float* entity_dx, float* entity_dy) {
+void camera_follow_entity(Camera* camera, float* entity_x, float* entity_y) {
 	camera->is_following_entity = 1;
-	camera->following_dx = entity_dx;
-	camera->following_dy = entity_dy;
+	camera->following_x = entity_x;
+	camera->following_y = entity_y;
 }
 
 void free_camera(Camera* camera) {

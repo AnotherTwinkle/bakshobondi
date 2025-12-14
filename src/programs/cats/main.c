@@ -27,8 +27,8 @@ Camera camera = {
 	.zoom = 2,
 
 	.is_following_entity = 0,
-	.following_dx = 0x0,
-	.following_dy = 0x0,
+	.following_x = 0x0,
+	.following_y = 0x0,
 
 	.is_moving_to_point = 0,
 	.target_x = 0.0f,
@@ -63,17 +63,30 @@ void PROGRAM_CAT_MAIN() {
 	    &cat3_sprites
 	};
 
+	static Animation *cat_move_anims[4] = {
+	    &anim_walking_right,
+	    &anim_walking_up,
+	    &anim_walking_left,
+	    &anim_walking_down
+	};
+
 	AnimState cat_anim_state;
+
+	EntityMovement cat_movement = {
+		.ix = 0,
+		.iy = 0,
+		.speed = 0,
+		.moving = 0,
+		.wants_to_move = 0
+	};
 
 	for (int i = 0; i < 2; i++) {
 	    Cat *cat = (Cat *)entity_alloc(sizeof(Cat));
 	    if (!cat)
 	        break;
 
-	    cat->base.x = 3.125f;
-	    cat->base.y = 2 + i;
-	    cat->base.state = CAT_WALKING;
-	    cat->base.orientation = (i % 2) ? FACING_LEFT : FACING_RIGHT;
+	    cat->base.x = 16.0f;
+	    cat->base.y = 12 + i;
 	    cat->base.spritesheet = cat_sprites[i];
 
 	    cat->base.update = cat_walk_update;
@@ -81,15 +94,22 @@ void PROGRAM_CAT_MAIN() {
 	    cat->base.next_think = TICKS + 10;
 
 		cat->base.anim_state = cat_anim_state;
+		cat->base.orientation = (i ? DIR_LEFT : DIR_RIGHT);
+
+		cat->base.flags |=  ENTITY_MOVABLE | ENTITY_ANIM_DRIVEN_BY_MOVE;
+
+		cat->base.move = cat_movement;
+    	cat->base.move.speed = 0.05f;
+    	cat->base.move.ix = (i ? -1 : 1);
+    	cat->base.move.iy = 0;
+    	cat->base.move.wants_to_move = 1;
+    	cat->base.move_anims = cat_move_anims;
 	    set_anim(
 	        &cat->base.anim_state,
-	        (cat->base.orientation == FACING_LEFT)
+	        (cat->base.orientation == DIR_LEFT)
 	            ? &anim_walking_left
 	            : &anim_walking_right
 	    );
-
-	    cat->dx = 0;
-	    cat->dy = 0;
 
 	    entity_add(&cat->base);
 	}
@@ -99,30 +119,28 @@ void PROGRAM_CAT_MAIN() {
 	    if (!cat)
 	        break;
 
-	    cat->base.y = 3.125f;
-	    cat->base.x = 2.5 + i;
-	    cat->base.state = CAT_WALKING;
-	    cat->base.orientation = (i % 2) ? FACING_UP : FACING_DOWN;
+	    cat->base.y = 16.0f;
+	    cat->base.x = 12 + i;
+	    cat->base.orientation = DIR_DOWN;
 	    cat->base.spritesheet = cat_sprites[i];
 
 	    cat->base.update = cat_manual_update;
 	    cat->base.think  = cat_manual_think;
 	    cat->base.next_think = TICKS + 10;
 
+	    cat->base.flags |=  ENTITY_MOVABLE | ENTITY_ANIM_DRIVEN_BY_MOVE;
+    	cat->base.move.speed = 0.05f;
+    	cat->base.move_anims = cat_move_anims;
+
 		cat->base.anim_state = cat_anim_state;
 	    set_anim(
 	        &cat->base.anim_state,
-	        (cat->base.orientation == FACING_UP)
-	            ? &anim_walking_up
-	            : &anim_walking_down
+	        &anim_sitting
 	    );
+	    set_frame(&cat->base.anim_state, 2);
 
-	    cat->dx = 0;
-	    cat->dy = 0;
-
-	    cat->manual_movement_button_pressed = 0;
 	    entity_add(&cat->base);
-		camera_follow_entity(&camera, &cat->dx, &cat->dy);
+		camera_follow_entity(&camera, &cat->base.x, &cat->base.y);
 	}
 	while(1) {
 		// Keyboard
@@ -139,6 +157,12 @@ void PROGRAM_CAT_MAIN() {
 			if (e->update) {
 				e->update(e);
 			}
+		}
+
+		for (int i = 0; i < active_entity_count; i++) {
+			Entity *e = active_entities[i];
+			movement_update(e);
+			update_anim(&e->anim_state);
 		}
 
 		// Level Rendering
@@ -198,7 +222,7 @@ void PROGRAM_CAT_MAIN() {
 		}
 
 		if (TICKS % 2 == 0) {
-			pml_draw_rect(4, 48, 8, 8, 0xff);
+			pml_draw_rect(4, 48, 1, 1, 0xff);
 		}
 		
 		camera_update(&camera);

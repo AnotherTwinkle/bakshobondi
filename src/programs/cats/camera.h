@@ -13,8 +13,8 @@ typedef struct Camera {
 	int zoom;
 
 	int is_following_entity;
-	float* following_dx;
-	float* following_dy;
+	float* following_x;
+	float* following_y;
 
 	int is_moving_to_point;
 	float target_x;
